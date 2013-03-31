@@ -504,6 +504,19 @@ main() {
 	debug doswitch
 }
 
+# @FUNCTION: _idebug
+# @USAGE: x
+# @INTERNAL
+# @DESCRIPTION:
+# If given argument x shell tracing will be enabled.
+#
+_idebug() {
+	case $1 in
+		x)    set -x;;
+		*)    error "Invalid argument to idebug";;
+	esac
+}
+
 _getopts() {
 	for arg in $(cat /proc/cmdline); do
     		case $arg in
@@ -521,6 +534,7 @@ _getopts() {
 			ishrl=*)  shlevel=$(echo ${arg#*=}|cut -d: -f1)
 				     runlevel=$(echo ${arg#*=}|cut -d: -s -f2);;
 			dmesg|i[klm]*|*root*|*resume*|*swap*|splash*|console*) export "$arg";;
+			idebug=*)    _idebug ${arg#idebug=}
 	   	 esac
 	done
 }
