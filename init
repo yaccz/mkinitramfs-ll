@@ -51,7 +51,7 @@ ack() {
 	[ -n "$_applets" ] || [ -f /etc/mkinitramfs-ll/busybox.app ] &&
 		_applets="$(cat /etc/mkinitramfs-ll/busybox.app)" ||
 		debug -d busybox --install -s && return
-	for _app in $_applets; do 
+	for _app in $_applets; do
 		[ -h "$_app" ] && [ "$(readlink $_app)" = "/bin/busybox" ] ||
 			debug -d busybox --install -s && break
 	done
@@ -61,7 +61,7 @@ _rmmod() {
 	[ -f "/etc/mkinitramfs-ll/module.$1" ] &&
 		local _module="$(cat /etc/mkinitramfs-ll/module.$1)" ||
 		local _module="$*"
-	for _m in $_module; do 
+	for _m in $_module; do
 		debug rmmod $_m 1>/dev/null 2>&1
 	done
 }
@@ -70,7 +70,7 @@ _modprobe() {
 	[ -f "/etc/mkinitramfs-ll/module.$1" ] &&
 		local _module="$(cat /etc/mkinitramfs-ll/module.$1)" ||
 		local _module="$*"
-	for _m in $_module; do 
+	for _m in $_module; do
 		debug modprobe $_m 1>/dev/null 2>&1
 	done
 }
@@ -90,7 +90,7 @@ msg() { $spld && debug cmd "set message $@" && debug cmd "repaint"; }
 
 _stop() { $spld && spld=false; debug cmd "exit"; }
 spld() {
-	$eck && for bin in fbcondecor_helper splash_util; do 
+	$eck && for bin in fbcondecor_helper splash_util; do
 		debug -d bck $bin
 	done
 	local IFS="${IFS}," _opt _opts cachedir event mode msg theme util
@@ -129,7 +129,7 @@ dolevel() {
 				while read line; do export $line; done </run/env
 				rm -f /run/env; fi
 			[ -f /run/${_s##*/}.pid ] && rm -f /run/${_s##*/}.pid && debug die
-			exec 0<$console 1>$console 2>&1	
+			exec 0<$console 1>$console 2>&1
 		done
 	fi
 	[ "$shlevel" = "$1" ] && debug die
@@ -204,10 +204,10 @@ getkey() {
 	export kfile kmode
 }
 
-dmclose() { 
+dmclose() {
 	[ -n "$2" ] && debug -d vgchange -an ${2%-*}
-	local IFS="${IFS}:" 
-	for _p in $1; do 
+	local IFS="${IFS}:"
+	for _p in $1; do
 		debug cryptsetup luksClose ${_p%-*} $header ||
 			debug cryptsetup remove ${_p%-*} $header
 	done
@@ -220,7 +220,7 @@ gld() {
 	fi
 }
 
-dmopen() { 
+dmopen() {
 	$eck && debug -d bck cryptsetup
 	debug _modprobe dm-crypt
 	local _arg=isLuks _header _msg dev
@@ -228,7 +228,7 @@ dmopen() {
 	local _dev=$(echo "$1" | cut -d'-' -f2 | cut -d'+' -f1)
 	local _hdr="$(echo "$1" | cut -d'+' -f2 -s)"
 	if [ -n "$_hdr" ]; then
-		if [ -n "$(echo "$_hdr" | egrep '(UUID|LABEL|sd[a-z])')" ]; then 
+		if [ -n "$(echo "$_hdr" | egrep '(UUID|LABEL|sd[a-z])')" ]; then
 			debug gld "$_hdr" -l
 		elif [ -e "/mnt/tok/$_hdr" ]; then debug gld "/mnt/tok/$_hdr" -l
 		else die "$_hdr detached header doesn't exist."; fi
@@ -236,10 +236,10 @@ dmopen() {
 		debug gld "$_dev"
 	else debug gld "$_dev" -l; fi
 	_dev=$dev
-	debug -d cryptsetup $_arg "$_dev" "$_header" 
+	debug -d cryptsetup $_arg "$_dev" "$_header"
 	_arg="luksOpen $_dev $_map $_header"
 	_msg="there are still 3 pwd mode attempts"
-	if [ "$kmode" = "gpg" ]; then 
+	if [ "$kmode" = "gpg" ]; then
 		mv /dev/tty /dev/bak && cp -a /dev/console /dev/tty
 		for _i in 1 2 3; do
 			gpg -qd "$kfile" | cryptsetup $_arg && break || info "$_msg"
@@ -337,13 +337,13 @@ dorootfs() {
 		[ "$kmode" == "none" ] && debug -d _blkid "$dev" "_dev"
 	fi
 	dolevel 3f
-	if [ -n "$_fsck" ]; then 
+	if [ -n "$_fsck" ]; then
 		case $_fsck in
 			n*|N*)    _fsck=-e;;
 			c*|y*|Y*) _fsck=-d;;
 			*)        _fsck=  ;;
 		esac
-		debug $_fsck fsck ${_fs:+-t$_fs} $_dev 
+		debug $_fsck fsck ${_fs:+-t$_fs} $_dev
 	fi
 	dolevel 3m
 	debug mount ${imopt:+-o$imopt} ${_fs:+-t$_fs} $_dev /newroot ||
@@ -361,7 +361,7 @@ dorootfs() {
 doswap() {
 	debug -d"i$1=<type>:<PV|VG-LV>[:<sign>] argument is missing" test -n "$2"
 	local _swp="$3" _type="${1%%:*}" _dev
-	local dev="$(echo "$1" | cut -d: -s -f2)" 
+	local dev="$(echo "$1" | cut -d: -s -f2)"
 	local _sign="$(echo "$1" | cut -d: -s -f3)"
 	debug -d getkey "${2:-pwd}" "$_swp"
 	[ -n "$_raid" ] && debug -d mdopen "$_raid" "_dev"
@@ -390,7 +390,7 @@ doresume() {
 		debug _modprobe tuxonice
 		echo $_dev >/sys/power/tuxonice/resume
 		_img="$(cat /sys/power/tuxonice/image_exists | head -n 1)"
-		if [ "$_img" = "1" ]; then 
+		if [ "$_img" = "1" ]; then
 			error "toi: no recognizable signature at the pointed location"
 			error "toi: proceed anyway [NO|yes]? "
 			read _asw
@@ -410,7 +410,7 @@ doresume() {
 		debug _modprobe swsusp
 		echo $_dev >/sys/power/disk/resume
 		_img="$(cat /sys/power/image_exists | head -n 1)"
-		if [ "$_img" = "1" ]; then 
+		if [ "$_img" = "1" ]; then
 			error "suspend: no recognizable signature at the pointed location"
 			error "suspend: proceed anyway [NO|yes]? "
 			read _asw
@@ -550,7 +550,7 @@ _init() {
 	debug -d mdev -s
 	echo /sbin/mdev >/proc/sys/kernel/hotplug
 	if [ -n "$imod" ]; then local IFS="${IFS},"
-		for _m in $imod; do 
+		for _m in $imod; do
 			debug modprobe $_m 1>/dev/null 2>&1
 		done
 	fi
