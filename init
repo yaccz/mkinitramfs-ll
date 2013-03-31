@@ -373,27 +373,30 @@ dorootfs() {
 	dolevel 3d
 	[ -n "$_raid" ] && mdopen "$_raid" "_dev"
 	if [ -z "$rootfs" ]; then
-	if [ -n "$_lvm" ]; then debug -d lvopen "$dev" "$_lvm" "_dev"
-	elif [ -n "$kmode" ]; then
-		[ "$kmode" != "none" ] && debug -d dmopen "${map:-root}-$iroot" "_dev"
-		[ "$kmode" == "none" ] && debug -d _blkid "$dev" "_dev"
-	fi
-	dolevel 3f
-	if [ -n "$_fsck" ]; then 
-		case $_fsck in
-			n*|N*)    _fsck=-e;;
-			c*|y*|Y*) _fsck=-d;;
-			*)        _fsck=  ;;
-		esac
-		debug $_fsck fsck ${_fs:+-t$_fs} $_dev 
-	fi
-	dolevel 3m
-	debug mount ${imopt:+-o$imopt} ${_fs:+-t$_fs} $_dev /newroot ||
-	{
-		[ -n "$kmode" ] &&
-			debug -d dmclose "${_lvm:-${map:-root}}" "${_lvm:+${_dev##*/}}" ||
-			die "failed to mount rootfs"
-	}
+		if [ -n "$_lvm" ]; then
+			debug -d lvopen "$dev" "$_lvm" "_dev"
+		elif [ -n "$kmode" ]; then
+			[ "$kmode" != "none" ] && debug -d dmopen "${map:-root}-$iroot" "_dev"
+			[ "$kmode" == "none" ] && debug -d _blkid "$dev" "_dev"
+		fi
+
+		dolevel 3f
+
+		if [ -n "$_fsck" ]; then 
+			case $_fsck in
+				n*|N*)    _fsck=-e;;
+				c*|y*|Y*) _fsck=-d;;
+				*)        _fsck=  ;;
+			esac
+			debug $_fsck fsck ${_fs:+-t$_fs} $_dev 
+		fi
+		dolevel 3m
+		debug mount ${imopt:+-o$imopt} ${_fs:+-t$_fs} $_dev /newroot ||
+		{
+			[ -n "$kmode" ] &&
+				debug -d dmclose "${_lvm:-${map:-root}}" "${_lvm:+${_dev##*/}}" ||
+				die "failed to mount rootfs"
+		}
 	fi
 	dolevel 3s
 	[ -n "$sqfsd" ] && debug -d squashd
