@@ -559,7 +559,7 @@ _init() {
 	[ -n /dev/stdin  ] || debug ln -fs /proc/self/fd/0 /dev/stdin
 	[ -n /dev/stdout ] || debug ln -fs /proc/self/fd/1 /dev/stdout
 :	${console:=/dev/tty1}
-	[ -n "$(echo $console | grep /dev)" ] || console="/dev/$tty"
+	[ -n "$(echo $console | grep /dev)" ] || console="/dev/$console"
 	exec 0<$console 1>$console 2>&1
 	export console
 	[ -n "$splash" ] && debug spld
