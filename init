@@ -138,6 +138,24 @@ dolevel() {
 
 _blkid() { eval $2=$(blkid | grep "${1#*=}" | cut -d: -f1); }
 
+# @FUNCTION: shread
+# @USAGE: <var>
+# @DESCRIPTION:
+# reads line into <var> unless "sh" is read from STDIN. In that case it drops into minimal shell
+shread() {
+	local w
+	while true; do
+		read w
+		if [ "${w}" = "sh" ];then
+			$sh
+		else
+			break
+		fi
+	done
+
+	eval "$1=${w}"
+}
+
 getdev() {
 	local _asw _opt msg
 	msg="Type in a valid dev e.g. [ sda5 | UUID=<uuid> | LABEL=<label> ]"
@@ -156,7 +174,8 @@ getdev() {
 	elif [ "$_opt" = "luks" ]; then
 		while ! debug cryptsetup $_arg "$dev"; do
 			info "${msg/dev/cyphertext or header}"
-			read _asw; debug _blkid "${_asw:-$1}" "dev"
+			shread _asw;
+			debug _blkid "${_asw:-$1}" "dev"
 		done
 	fi
 }
